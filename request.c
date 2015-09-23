@@ -139,7 +139,7 @@ void requestServeDynamic(int fd, char *filename, char *cgiargs, long arrival, lo
 	 * The CGI script has to finish writing out the header. */
 	sprintf(buf, "HTTP/1.0 200 OK\r\n");
 	sprintf(buf, "%sServer: 1DT032 Web Server\r\n", buf);
-       	sprintf(buf, "%s Stat-req-arrival: %ld\r\n", buf, arrival);
+    sprintf(buf, "%s Stat-req-arrival: %ld\r\n", buf, arrival);
 	sprintf(buf, "%s Stat-req-dispatch: %d\r\n", buf, (int)(dispatch - arrival));
 
 	Rio_writen(fd, buf, strlen(buf));
@@ -248,7 +248,7 @@ void requestHandle(int fd, long arrival, long dispatch) {
 		requestServeStatic(fd, filename, sbuf.st_size, arrival, dispatch);
 	} else {
 		/* TODO: Implement the dynamic case */
-
+        
 		/* Delegate the request processing to the Request module */
 		requestServeDynamic(fd, filename, cgiargs, arrival, dispatch);
 	}
