@@ -62,10 +62,13 @@ void requestReadHdrs(rio_t *rp) {
 	assert(rp != NULL);
 
 	char buf[MAXLINE];
-
-	Rio_readlineb(rp, buf, MAXLINE);
-
+	int len = Rio_readlineb(rp, buf, MAXLINE);
+	while(len != 0) {
+	  rp->rio_bufptr += len*sizeof(char);
+	  Rio_readlineb(rp, buf, MAXLINE);
+	}
 	/* TODO: 
+	 * NOTE: Probably done, I may have misunderstood
 	 * The previous line will only read one line, however, it should
 	 * discard everything up to an empty text line.
 	 */
