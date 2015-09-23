@@ -221,7 +221,9 @@ void requestHandle(int fd, long arrival, long dispatch) {
 	printf("%s %s %s\n", method, uri, version);
 
 	/* TODO: Return an error if a GET method is received. */
-
+    if (strcmp(method,"GET") == 0) {
+        requestError(fd,filename,"501","Not implemented","1DT032 Server either does not recognize the request method, or it lacks the ability to fulfill the request");
+    }
 	/* Read request headers */
 	requestReadHdrs(&rio);
 
