@@ -59,6 +59,12 @@ void requestError(int fd, char *cause, char *errnum, char *shortmsg, char *longm
  * Reads and discards everything up to an empty text line
  */
 void requestReadHdrs(rio_t *rp) {
+    /* 
+     * TODO:
+     * NOTE: Probably done, I may have misunderstood.
+     * The previous line will only read one line, however, it should
+     * discard everything up to an empty text line.
+     */
 	assert(rp != NULL);
 
 	char buf[MAXLINE];
@@ -67,11 +73,6 @@ void requestReadHdrs(rio_t *rp) {
 	  rp->rio_bufptr += len*sizeof(char);
 	  Rio_readlineb(rp, buf, MAXLINE);
 	}
-	/* TODO: 
-	 * NOTE: Probably done, I may have misunderstood
-	 * The previous line will only read one line, however, it should
-	 * discard everything up to an empty text line.
-	 */
 
 	return;
 }
