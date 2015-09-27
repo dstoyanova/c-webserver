@@ -80,25 +80,25 @@ int main(int argc, char *argv[]) {
 		clientlen = sizeof(clientaddr);
 
 		/* TODO: Accept a connection and retrieve connfd */
+        connfd = Accept(listenfd,clientaddr,clientlen);
 
 		/* TODO: Allocate a request structure */
-
+        struct request req;
+        
 		/* TODO: Save the time for the statistics */
-
+        gettimeofday(&arrival, NULL);
+        
 		/* TODO: Set the request file descriptor to the one accepted */
-
+        req.fd = listenfd;
+        
 		/* TODO: Set the arrival and dispatch time */
-		
+        req.arrival = calculate_time(arrival);
+        req.dispatch = calculate_time(arrival);
+        
 		/* TODO: Call the request handler */
-
+        requestHandle(req.fd,req.arrival,req.dispatch);
+        
 		/* TODO: Close */
-	
+        Close(req.fd);
 	}
-
-}
-
-
-    
-
-
- 
+} 
