@@ -11,7 +11,6 @@
  */
 
 #include <assert.h>
-#include <stdlib.h>
 #include "request.h"
 #include "util.h"
 
