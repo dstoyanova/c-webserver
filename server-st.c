@@ -11,6 +11,7 @@
  */
 
 #include <assert.h>
+#include <stdlib.h>
 #include "request.h"
 #include "util.h"
 
@@ -30,7 +31,15 @@ typedef struct {
 void getargs(int argc, char *argv[], int *port)
 {
 	/* TODO: Verify that the arguments are valid */
-
+    assert(port != NULL);
+    if (argv) {
+        if (argc == 1) {
+            *port = atoi(argv[0]);
+        }
+        else {
+            printf("Too many arguments! Please enter only the number of the port (above 2000).");
+        }
+    }
 }
 
 int requestcmp(const void *first, const void *second) {
