@@ -215,6 +215,7 @@ int Accept(int s, struct sockaddr *addr, socklen_t *addrlen)
 	 * HINT: Look at the functions Listen() and Connect()
 	 */
     int rc = accept(s,addr,addrlen);
+    printf("%d\n", rc);
     if (rc < 0)
         unix_error("Accept error");
     return rc;
@@ -401,13 +402,16 @@ ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen)
 	char c, *bufp = usrbuf;
 
 	for (n = 1; n < maxlen; n++) {
+
 		rc = rio_read(rp, &c, 1);
 		if (rc == 1) {
 			*bufp++ = c;
 			if (c == '\n') {
 				break;
 			}
+
 		} else if (rc == 0) {
+
 			if (n == 1) {
 				/* EOF, no data read */
 				return 0;

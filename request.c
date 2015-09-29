@@ -68,9 +68,9 @@ void requestReadHdrs(rio_t *rp) {
 	assert(rp != NULL);
 
 	char buf[MAXLINE];
-	int len = Rio_readlineb(rp, buf, MAXLINE);
-	while(len != 0) {
-	  rp->rio_bufptr += len*sizeof(char);
+	Rio_readlineb(rp, buf, MAXLINE);
+	while(strcmp(buf,"\r\n") != 0) {
+	  printf("%s\n", buf);
 	  Rio_readlineb(rp, buf, MAXLINE);
 	}
 
@@ -220,12 +220,13 @@ void requestHandle(int fd, long arrival, long dispatch) {
 
 	Rio_readinitb(&rio, fd);
 	Rio_readlineb(&rio, buf, MAXLINE);
+	
 	sscanf(buf, "%s %s %s", method, uri, version);
 
 	printf("%s %s %s\n", method, uri, version);
 
 	/* TODO: Return an error if a GET method is received. */
-    if (strcmp(method,"GET") == 0) {
+    if (strcmp(method,"GET") != 0) {
         requestError(fd,filename,"501","Not implemented","1DT032 Server either does not recognize the request method, or it lacks the ability to fulfill the request");
     }
 	/* Read request headers */
