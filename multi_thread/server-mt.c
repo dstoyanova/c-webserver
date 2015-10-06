@@ -124,7 +124,8 @@ void *consumer(void *arg) {
   	thread worker;
   	
 	/* TODO: Initialize the statistics of the thread structure */
-	worker.id = 1;
+	//printf("worker.id = %d\n", *(int*)arg);
+	worker.id = *(int*)arg;
 	worker.count = 0;
 	worker.statics = 0;
 	worker.dynamics = 0;
@@ -139,9 +140,12 @@ void *consumer(void *arg) {
 		pthread_mutex_lock(&lock);
 		
 		/* TODO: Wait if there is no client to be served. */
+		printf("num of clients: %d\n",numfull);
 		while (numfull == 0) {
+		  printf("STILL NO CLIENTS\n");
 		  pthread_cond_wait(&fill, &lock);
 		}
+		printf("num of clients now: %d\n",numfull);
 			
 		/* TODO: Get the dispatch time */
 		gettimeofday(&dispatch, NULL);
@@ -268,6 +272,7 @@ int main(int argc, char *argv[])
 		/* Queue new request depending on scheduling algorithm */
 		if (alg == FIFO) {
 		  *buffer = req;
+		  pthread_cond_signal(&fill);
 			/* TODO: FIFO=Queue request at the end of the queue */
 		} else if(alg == SFF) {
 			/* TODO: SFF=Queue request sorting them according to file size */
