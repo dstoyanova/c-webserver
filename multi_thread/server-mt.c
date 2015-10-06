@@ -129,8 +129,8 @@ void *consumer(void *arg) {
 	worker.statics = 0;
 	worker.dynamics = 0;
 	worker.client_id = 0;
-	
-	request *req;
+
+	request *req = NULL;
 	struct timeval dispatch;
 
 	/* Main thread loop */
@@ -204,13 +204,14 @@ int main(int argc, char *argv[])
 	 *     useptr,
 	 *     algorithm  */
 	max = threads;
-	// buffers = 
+	//buffers = buffers;
 	numfull = 0;
 	fillptr = 0;
 	useptr = 0;
 	algorithm = alg;
 	
 	/* TODO: Allocate the requests queue */
+	/* done */
 	buffer = malloc(max * sizeof(request*));
 	
 	/* TODO: Allocate the threads buffer */
@@ -221,8 +222,8 @@ int main(int argc, char *argv[])
 	int status;
 	for(i = 0; i < threads; i++) {
 	  /* TODO: Create N consumer threads */
-	  /* done */	  
-	  status = pthread_create(&thread_buffer[i], NULL, consumer, (void *)i);
+	  /* done */
+	  status = pthread_create(&thread_buffer[i], NULL, consumer, (void *)&i);
 	  if(status) {
 	    printf("ERROR; return code from pthread_create() is %d\n", status);
 	    exit(-1);
