@@ -163,11 +163,37 @@ void *consumer(void *arg) {
 		  // req = getNextRequest();
 		  // TODO: Get the next request correctly from the queue
 		  //       Current method is only temporary
-		  req = *(request **)buffer;		  
+		  // req = *(request **)buffer;
 		  /* TODO: FIFO=Removes the first request in the queue */
-			
+            req = *(buffer + 0);
+            int i = 0;
+            while (*(buffer + i + 1)) {
+                *(buffer + i) = *(buffer + i + 1);
+                *(buffer + i + 1) = NULL;
+                i = i + 1;
+            }
 		} else if (algorithm == SFF) {
 			/* TODO: SFF=Removes the request with the smalles file first */
+            int i;
+            long min = requestFileSize(*(buffer + 0)->fd);
+            for (i = 1; i < max; i++) {
+                long temp = requestFileSize(*(buffer + i)->fd);
+                if (temp < min) {
+                    min = temp;
+                }
+            }
+            for (i = 0; i < max; i++) {
+                long temp = requestFileSize(*(buffer + i)->fd);
+                if (temp == min) {
+                    req = *(buffer + i);
+                    int j = i;
+                    while (*(buffer + j + 1)) {
+                        *(buffer + j) = *(buffer + j + 1);
+                        *(buffer + j + 1) = NULL;
+                        j = j + 1;
+                    }
+                }
+            }
 		}
 
 		/* TODO: Set the dispatch time of the request */
@@ -181,7 +207,8 @@ void *consumer(void *arg) {
 		latencies_acc += (long)(req->dispatch - req->arrival);
 
 		/* TODO: Synchronize */
-
+        pthread_mutex_unlock(&lock);
+        
 		/* TODO: Dispatch the request to the Request module */
 		requestHandle(req->fd,req->arrival,req->dispatch, &worker);
     
@@ -190,7 +217,9 @@ void *consumer(void *arg) {
 
 		/* TODO: Close connection with the client */
 		Close(req->fd);
-		req = NULL;
+		// req = NULL;
+        // NOTE: req is stored in the heap
+        free(req);
 		numfull = numfull - 1;
 	}
 }
@@ -277,30 +306,34 @@ int main(int argc, char *argv[])
 		/* Queue new request depending on scheduling algorithm */
 		if (alg == FIFO) {
 		  // TODO: Add the request to the buffer properly
-		  *buffer = req;
+		  // *buffer = req;
+            int i = 0;
+            while (*(buffer + i)) {
+                i = i + 1;
+            }
+            *(buffer + i) = req;
 		  // This signals to the threads that there is a new request in queue
 		  pthread_cond_signal(&fill);
 		  /* TODO: FIFO=Queue request at the end of the queue */
+            
+            // NOTE: I do not know what you mean exactly, because we have an array
+            // which automatically means that we are adding a single request at the end, always.
+            
 		} else if(alg == SFF) {
 			/* TODO: SFF=Queue request sorting them according to file size */
-			/* HINT: 
-			   You can use requestFileSize() to check the size of the file requested.
-			   You can use qsort() with requestcmp() to sort the requests by size.
-			 */
+            int i = 0;
+            while (*(buffer + i)) {
+                i = i + 1;
+            }
+            *(buffer + i) = req;
+            qsort(buffer, max, sizeof(request*), &requestcmp);
 		}
 
 		/* TODO: Increase the number of clients queued */
 		numfull = numfull + 1;
 		printf("numfull: %d\n", numfull);
 		
-		pthread_mutex_unlock(&lock);
-
 		/* TODO: Synchronize */
+        pthread_mutex_unlock(&lock);
 	}
 }
-
-
-    
-
-
- 
