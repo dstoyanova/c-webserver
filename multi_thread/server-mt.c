@@ -131,7 +131,7 @@ void *consumer(void *arg) {
 	worker.dynamics = 0;
 	worker.client_id = 0;
 
-	request *req = NULL;
+	volatile request *req = NULL;
 	struct timeval dispatch;
 
 	/* Main thread loop */
@@ -175,15 +175,15 @@ void *consumer(void *arg) {
 		} else if (algorithm == SFF) {
 			/* TODO: SFF=Removes the request with the smalles file first */
             int i;
-            long min = requestFileSize(*(buffer + 0)->fd);
+            long min = requestFileSize((*(buffer + 0))->fd);
             for (i = 1; i < max; i++) {
-                long temp = requestFileSize(*(buffer + i)->fd);
+                long temp = requestFileSize((*(buffer + i))->fd);
                 if (temp < min) {
                     min = temp;
                 }
             }
             for (i = 0; i < max; i++) {
-                long temp = requestFileSize(*(buffer + i)->fd);
+                long temp = requestFileSize((*(buffer + i))->fd);
                 if (temp == min) {
                     req = *(buffer + i);
                     int j = i;
@@ -217,9 +217,7 @@ void *consumer(void *arg) {
 
 		/* TODO: Close connection with the client */
 		Close(req->fd);
-		// req = NULL;
-        // NOTE: req is stored in the heap
-        free(req);
+		req = NULL;
 		numfull = numfull - 1;
 	}
 }
