@@ -121,7 +121,7 @@ void *consumer(void *arg) {
 	assert(arg != NULL);
 
   	/* TODO: Create a thread structure */
-  	struct thread worker;
+  	thread worker;
   	
 	/* TODO: Initialize the statistics of the thread structure */
 	worker.id = 1;
@@ -155,7 +155,6 @@ void *consumer(void *arg) {
 			
 		} else if (algorithm == SFF) {
 			/* TODO: SFF=Removes the request with the smalles file first */
-			
 		}
 
 		/* TODO: Set the dispatch time of the request */
@@ -204,7 +203,8 @@ int main(int argc, char *argv[])
 	 *     fillptr,
 	 *     useptr,
 	 *     algorithm  */
-
+	 max = atoi(argv[1]);
+	 
 	/* TODO: Allocate the requests queue */
 	
 	/* TODO: Allocate the threads buffer */
