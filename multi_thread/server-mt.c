@@ -153,13 +153,18 @@ void *consumer(void *arg) {
 		/* TODO: Set the ID of the the thread in charge */
 		threadid = worker.id;
 
-		// TODO (Added by Filip)
-		// req = getNextRequest();
-		req = *(request **)buffer;
+
+
+
 		
 		/* Get the request from the queue according to the sched algorithm */
 		if (algorithm == FIFO) {
-			/* TODO: FIFO=Removes the first request in the queue */
+		  // TODO (Added by Filip)		  
+		  // req = getNextRequest();
+		  // TODO: Get the next request correctly from the queue
+		  //       Current method is only temporary
+		  req = *(request **)buffer;		  
+		  /* TODO: FIFO=Removes the first request in the queue */
 			
 		} else if (algorithm == SFF) {
 			/* TODO: SFF=Removes the request with the smalles file first */
@@ -183,10 +188,10 @@ void *consumer(void *arg) {
 		printf("Latency for client %d was %ld\n", worker.client_id, (long)(req->dispatch - req->arrival));
 		printf("Avg. client latency: %.2f\n", (float)latencies_acc/(float)clients_treated);
 
-		//requestHandle(req->fd,req->arrival,req->dispatch);
-
 		/* TODO: Close connection with the client */
-		Close(req->fd);		
+		Close(req->fd);
+		req = NULL;
+		numfull = numfull - 1;
 	}
 }
 
@@ -271,9 +276,11 @@ int main(int argc, char *argv[])
 		
 		/* Queue new request depending on scheduling algorithm */
 		if (alg == FIFO) {
+		  // TODO: Add the request to the buffer properly
 		  *buffer = req;
+		  // This signals to the threads that there is a new request in queue
 		  pthread_cond_signal(&fill);
-			/* TODO: FIFO=Queue request at the end of the queue */
+		  /* TODO: FIFO=Queue request at the end of the queue */
 		} else if(alg == SFF) {
 			/* TODO: SFF=Queue request sorting them according to file size */
 			/* HINT: 
