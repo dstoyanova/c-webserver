@@ -130,8 +130,7 @@ void requestGetFiletype(char *filename, char *filetype) {
  */
 /* TODO: add worker */
 /* done */
-void requestServeDynamic(int fd, char *filename, char *cgiargs, long arrival, long dispatch
-			 thread worker)
+void requestServeDynamic(int fd, char *filename, char *cgiargs, long arrival, long dispatch, struct thread& worker)
 {
 	char buf[MAXLINE], *emptylist[] = {NULL};
 
@@ -166,8 +165,7 @@ void requestServeDynamic(int fd, char *filename, char *cgiargs, long arrival, lo
  */
 /* TODO: Add worker */
 /* done */
-void requestServeStatic(int fd, char *filename, int filesize, long arrival, long dispatch,
-			thread worker) 
+void requestServeStatic(int fd, char *filename, int filesize, long arrival, long dispatch, struct thread& worker) 
 {
 	int srcfd;
 	char *srcp, filetype[MAXLINE], buf[MAXBUF];
