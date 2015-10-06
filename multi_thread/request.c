@@ -130,7 +130,8 @@ void requestGetFiletype(char *filename, char *filetype) {
  */
 /* TODO: add worker */
 /* done */
-void requestServeDynamic(int fd, char *filename, char *cgiargs, long arrival, long dispatch, struct thread& worker)
+void requestServeDynamic(int fd, char *filename, char *cgiargs, long arrival, long dispatch,
+			 thread *worker)
 {
 	char buf[MAXLINE], *emptylist[] = {NULL};
 
@@ -165,7 +166,8 @@ void requestServeDynamic(int fd, char *filename, char *cgiargs, long arrival, lo
  */
 /* TODO: Add worker */
 /* done */
-void requestServeStatic(int fd, char *filename, int filesize, long arrival, long dispatch, struct thread& worker) 
+void requestServeStatic(int fd, char *filename, int filesize, long arrival, long dispatch,
+			thread *worker) 
 {
 	int srcfd;
 	char *srcp, filetype[MAXLINE], buf[MAXBUF];
@@ -218,7 +220,7 @@ void requestServeStatic(int fd, char *filename, int filesize, long arrival, long
  */
 /* TODO: Add worker */
 /* done? */
-void requestHandle(int fd, long arrival, long dispatch, thread worker)
+void requestHandle(int fd, long arrival, long dispatch, thread *worker)
 {
 
 	int is_static;

@@ -136,11 +136,11 @@ void *consumer(void *arg) {
 	/* Main thread loop */
 	while(1) {
 		/* TODO: Take the mutex */
-		pthread_mutex_lock(lock);
+		pthread_mutex_lock(&lock);
 		
 		/* TODO: Wait if there is no client to be served. */
 		while (numfull == 0) {
-			pthread_cond_wait(fill);
+		  pthread_cond_wait(&fill, &lock);
 		}
 			
 		/* TODO: Get the dispatch time */
@@ -158,7 +158,7 @@ void *consumer(void *arg) {
 		}
 
 		/* TODO: Set the dispatch time of the request */
-		req.dispatch = calculate_time(dispatch);
+		req->dispatch = calculate_time(dispatch);
 		
 		/* TODO: Signal that there is one request left */
 		printf("There is only one request left!");
@@ -208,14 +208,14 @@ int main(int argc, char *argv[])
 	numfull = 0;
 	fillptr = 0;
 	useptr = 0;
-	algortihm = alg;
+	algorithm = alg;
 	
 	/* TODO: Allocate the requests queue */
 	buffer = malloc(max * sizeof(request*));
 	
 	/* TODO: Allocate the threads buffer */
 	/* done */
-	phread_t thread_buffer[threads];
+	pthread_t thread_buffer[threads];
 	
 	int i;
 	int status;
@@ -239,20 +239,20 @@ int main(int argc, char *argv[])
 		gettimeofday(&arrival, NULL);
 
 		/* TODO: Take the mutex to modify the requests queue */
-		pthread_mutex_lock(lock);
+		pthread_mutex_lock(&lock);
 		
 		/* TODO: If the request queue is full, wait until somebody frees one slot */
 		while (numfull == max) {
-			pthread_cond_wait(empty);
+		  pthread_cond_wait(&empty, &lock);
 		}
 		
 		/* Allocate a request structure */
 		request *req = malloc(sizeof(request)); 
 
 		/* TODO: Fill the request structure */
-		req.fd = listenfd;
-		req.size = clientlen;
-		req.arrival = calculate_time(arrival);
+		req->fd = listenfd;
+		req->size = clientlen;
+		req->arrival = calculate_time(arrival);
 		
 		/* Queue new request depending on scheduling algorithm */
 		if (alg == FIFO) {

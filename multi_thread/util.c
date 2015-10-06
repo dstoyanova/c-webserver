@@ -216,6 +216,11 @@ int Accept(int s, struct sockaddr *addr, socklen_t *addrlen)
 	 * an error if the accept() call fails, otherwise return the value. 
 	 * HINT: Look at the functions Listen and Connect 
 	 */
+  int rc = accept(s,addr,addrlen);
+  printf("%d\n", rc);
+  if (rc < 0)
+    unix_error("Accept error");
+  return rc;  
 }
 
 void Connect(int sockfd, struct sockaddr *serv_addr, int addrlen) 
