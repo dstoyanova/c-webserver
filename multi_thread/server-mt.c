@@ -203,13 +203,20 @@ int main(int argc, char *argv[])
 	 *     fillptr,
 	 *     useptr,
 	 *     algorithm  */
-	 max = atoi(argv[1]);
-	 
+	max = threads;
+	// buffers = 
+	numfull = 0;
+	fillptr = 0;
+	useptr = 0;
+	algortihm = alg;
+	
 	/* TODO: Allocate the requests queue */
+	buffer = malloc(max * sizeof(request*));
 	
 	/* TODO: Allocate the threads buffer */
 	/* done */
 	phread_t thread_buffer[threads];
+	
 	int i;
 	int status;
 	for(i = 0; i < threads; i++) {
@@ -232,20 +239,20 @@ int main(int argc, char *argv[])
 		gettimeofday(&arrival, NULL);
 
 		/* TODO: Take the mutex to modify the requests queue */
+		pthread_mutex_lock(lock);
 		
 		/* TODO: If the request queue is full, wait until somebody frees one slot */
-		//if (fill) {
-		
-		//}
+		while (numfull == max) {
+			pthread_cond_wait(empty);
+		}
 		
 		/* Allocate a request structure */
 		request *req = malloc(sizeof(request)); 
 
 		/* TODO: Fill the request structure */
-		//req.fd = 
-		//req.size =
-		//req.arrival = 
-		//req.dispatch = 
+		req.fd = listenfd;
+		req.size = clientlen;
+		req.arrival = calculate_time(arrival);
 		
 		/* Queue new request depending on scheduling algorithm */
 		if (alg == FIFO) {
@@ -259,7 +266,8 @@ int main(int argc, char *argv[])
 		}
 
 		/* TODO: Increase the number of clients queued */
-
+		numfull = numfull + 1;
+		
 		/* TODO: Synchronize */
 	}
 }
