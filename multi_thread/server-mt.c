@@ -148,6 +148,10 @@ void *consumer(void *arg) {
 		
 		/* TODO: Set the ID of the the thread in charge */
 		threadid = worker.id;
+
+		// TODO (Added by Filip)
+		// req = getNextRequest();
+		req = *(request **)buffer;
 		
 		/* Get the request from the queue according to the sched algorithm */
 		if (algorithm == FIFO) {
@@ -170,11 +174,15 @@ void *consumer(void *arg) {
 		/* TODO: Synchronize */
 
 		/* TODO: Dispatch the request to the Request module */
-
+		requestHandle(req->fd,req->arrival,req->dispatch, &worker);
+    
 		printf("Latency for client %d was %ld\n", worker.client_id, (long)(req->dispatch - req->arrival));
 		printf("Avg. client latency: %.2f\n", (float)latencies_acc/(float)clients_treated);
 
+		//requestHandle(req->fd,req->arrival,req->dispatch);
+
 		/* TODO: Close connection with the client */
+		Close(req->fd);		
 	}
 }
 
@@ -243,6 +251,8 @@ int main(int argc, char *argv[])
 		pthread_mutex_lock(&lock);
 		
 		/* TODO: If the request queue is full, wait until somebody frees one slot */
+		printf("max: %d\n", max);
+		printf("numfull: %d\n", numfull);
 		while (numfull == max) {
 		  pthread_cond_wait(&empty, &lock);
 		}
@@ -251,12 +261,13 @@ int main(int argc, char *argv[])
 		request *req = malloc(sizeof(request)); 
 
 		/* TODO: Fill the request structure */
-		req->fd = listenfd;
+		req->fd = connfd;
 		req->size = clientlen;
 		req->arrival = calculate_time(arrival);
 		
 		/* Queue new request depending on scheduling algorithm */
 		if (alg == FIFO) {
+		  *buffer = req;
 			/* TODO: FIFO=Queue request at the end of the queue */
 		} else if(alg == SFF) {
 			/* TODO: SFF=Queue request sorting them according to file size */
@@ -268,7 +279,10 @@ int main(int argc, char *argv[])
 
 		/* TODO: Increase the number of clients queued */
 		numfull = numfull + 1;
+		printf("numfull: %d\n", numfull);
 		
+		pthread_mutex_unlock(&lock);
+
 		/* TODO: Synchronize */
 	}
 }
