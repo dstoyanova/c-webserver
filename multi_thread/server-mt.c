@@ -118,12 +118,17 @@ long calculate_time(struct timeval t) {
  * 
  */
 void *consumer(void *arg) {
-	/* assert(arg != NULL); */
+	assert(arg != NULL);
 
   	/* TODO: Create a thread structure */
-	/* TODO: Initialize the statistics of the thread structure */  
-  thread worker = {1, 0, 0, 0, 0};
-
+  	struct thread worker;
+  	
+	/* TODO: Initialize the statistics of the thread structure */
+	worker.id = 1;
+	worker.count = 0;
+	worker.statics = 0;
+	worker.dynamics = 0;
+	worker.client_id = 0;
 	
 	request *req;
 	struct timeval dispatch;
@@ -131,24 +136,34 @@ void *consumer(void *arg) {
 	/* Main thread loop */
 	while(1) {
 		/* TODO: Take the mutex */
-
+		pthread_mutex_lock(lock);
+		
 		/* TODO: Wait if there is no client to be served. */
-
+		while (numfull == 0) {
+			pthread_cond_wait(fill);
+		}
+			
 		/* TODO: Get the dispatch time */
+		gettimeofday(&dispatch, NULL);
 		
 		/* TODO: Set the ID of the the thread in charge */
-
+		threadid = worker.id;
+		
 		/* Get the request from the queue according to the sched algorithm */
 		if (algorithm == FIFO) {
 			/* TODO: FIFO=Removes the first request in the queue */
+			
 		} else if (algorithm == SFF) {
 			/* TODO: SFF=Removes the request with the smalles file first */
+			
 		}
 
 		/* TODO: Set the dispatch time of the request */
-
+		req.dispatch = calculate_time(dispatch);
+		
 		/* TODO: Signal that there is one request left */
-
+		printf("There is only one request left!");
+		
 		/* Update Server statistics */
 		clients_treated++;
 		latencies_acc += (long)(req->dispatch - req->arrival);
@@ -217,14 +232,21 @@ int main(int argc, char *argv[])
 		gettimeofday(&arrival, NULL);
 
 		/* TODO: Take the mutex to modify the requests queue */
-
+		
 		/* TODO: If the request queue is full, wait until somebody frees one slot */
-
+		//if (fill) {
+		
+		//}
+		
 		/* Allocate a request structure */
 		request *req = malloc(sizeof(request)); 
 
 		/* TODO: Fill the request structure */
-
+		//req.fd = 
+		//req.size =
+		//req.arrival = 
+		//req.dispatch = 
+		
 		/* Queue new request depending on scheduling algorithm */
 		if (alg == FIFO) {
 			/* TODO: FIFO=Queue request at the end of the queue */
