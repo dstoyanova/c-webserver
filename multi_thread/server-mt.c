@@ -124,7 +124,6 @@ void *consumer(void *arg) {
   	thread worker;
   	
 	/* TODO: Initialize the statistics of the thread structure */
-	//printf("worker.id = %d\n", *(int*)arg);
 	worker.id = *(int*)arg;
 	worker.count = 0;
 	worker.statics = 0;
@@ -140,43 +139,30 @@ void *consumer(void *arg) {
 		pthread_mutex_lock(&lock);
 		
 		/* TODO: Wait if there is no client to be served. */
-		printf("In thread: Queued requests: %d\n", numfull);
 		while (numfull == 0) {
 		  printf("Waiting for requests\n");
 		  pthread_cond_wait(&fill, &lock);
 		}
-		printf("In thread: Queued requests: %d\n", numfull);
-		//printf("num of clients now: %d\n",numfull);
-			
+		
 		/* TODO: Get the dispatch time */
 		gettimeofday(&dispatch, NULL);
 		
 		/* TODO: Set the ID of the the thread in charge */
 		threadid = worker.id;
-
 		
 		/* Get the request from the queue according to the sched algorithm */
 		if (algorithm == FIFO) {
-		  // TODO (Added by Filip)		  
-		  // req = getNextRequest();
-		  // TODO: Get the next request correctly from the queue
-		  //       Current method is only temporary
-		  // req = *(request **)buffer;
-		  /* TODO: FIFO=Removes the first request in the queue */
 		  req = *(buffer + 0);
 		  numfull = numfull - 1;
 		  *(buffer + 0) = NULL;
 		  int i = 0;
-		  printf("vi kom hit\n");
-		  printf("req->fd: %d\n", req->fd);
-		  printf("vi kom hit2\n");
-		  while ((*(buffer + i + 1) != NULL) && (i < max) && max != 1)  {
-		    //printf("buff: %d\n",(*(buffer + i + 1))->fd);
-		    printf("We're prob stuck here\n");
+		  while ((*(buffer + i + 1) != NULL) && (i < max-1) && max != 1)  {
+		    printf("Moving queue[%d] to queue[%d]\n", i+1, i);
 		    *(buffer + i) = *(buffer + i + 1);
 		    *(buffer + i + 1) = NULL;
 		    i = i + 1;
 		  }
+		  pthread_cond_signal(&empty);
 		} else if (algorithm == SFF) {
 		  /* TODO: SFF=Removes the request with the smalles file first */
 		  int i;
@@ -204,9 +190,6 @@ void *consumer(void *arg) {
 		/* TODO: Set the dispatch time of the request */
 		req->dispatch = calculate_time(dispatch);
 		
-		/* TODO: Signal that there is one request left */
-		printf("There is only one request left!");
-		
 		/* Update Server statistics */
 		clients_treated++;
 		latencies_acc += (long)(req->dispatch - req->arrival);
@@ -223,7 +206,6 @@ void *consumer(void *arg) {
 		/* TODO: Close connection with the client */
 		Close(req->fd);
 		req = NULL;
-		/* numfull = numfull - 1; */
 	}
 }
 
@@ -295,10 +277,12 @@ int main(int argc, char *argv[])
 		pthread_mutex_lock(&lock);
 		
 		/* TODO: If the request queue is full, wait until somebody frees one slot */
-		printf("max: %d\n", max);
-		printf("numfull: %d\n", numfull);
+		/* printf("max: %d\n", max); */
+		/* printf("numfull: %d\n", numfull); */
 		while (numfull == max) {
+		  printf("QUEUE FULL: %d/%d\n", numfull, max);
 		  pthread_cond_wait(&empty, &lock);
+		  printf("SPACE AVAILABLE IN QUEUE AGAIN\n");
 		}
 		
 		/* Allocate a request structure */
