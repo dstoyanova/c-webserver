@@ -197,7 +197,7 @@ void *consumer(void *arg) {
 		  *(buffer + 0) = NULL;		  
 		  int j = 0;
 		  //while ((*(buffer + j + 1) != NULL) && (j < max-1) && max != 1) {
-		  while ((*(buffer + i + 1) != NULL) && (i < numfull - 1) && numfull != 1) {
+		  while ((*(buffer + j + 1) != NULL) && (j < numfull - 1) && numfull != 1) {
 		    //while (*(buffer + j + 1)) {
 		    printf("curr j: %d\n",j);
 		    *(buffer + j) = *(buffer + j + 1);
