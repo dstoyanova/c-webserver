@@ -157,15 +157,17 @@ void *consumer(void *arg) {
 		/* Get the request from the queue according to the sched algorithm */
 		if (algorithm == FIFO) {
 		  req = *(buffer + 0);
-		  numfull = numfull - 1;
+		  //numfull = numfull - 1;
 		  *(buffer + 0) = NULL;
 		  int i = 0;
-		  while ((*(buffer + i + 1) != NULL) && (i < max-1) && max != 1)  {
+		  //while ((*(buffer + i + 1) != NULL) && (i < max-1) && max != 1)  {
+		  while ((*(buffer + i + 1) != NULL) && (i < numfull - 1) && numfull != 1)  {
 		    printf("Moving queue[%d] to queue[%d]\n", i+1, i);
 		    *(buffer + i) = *(buffer + i + 1);
 		    *(buffer + i + 1) = NULL;
 		    i = i + 1;
 		  }
+		  numfull = numfull - 1;
 		  pthread_cond_signal(&empty);
 		} else if (algorithm == SFF) {
 		  /* TODO: SFF=Removes the request with the smalles file first */
@@ -191,16 +193,18 @@ void *consumer(void *arg) {
 		  /*   } */
 		  /* } */
 		  req = *(buffer + 0);
-		  numfull = numfull - 1;
+		  //numfull = numfull - 1;
 		  *(buffer + 0) = NULL;		  
 		  int j = 0;
-		  while ((*(buffer + j + 1) != NULL) && (j < max-1) && max != 1) {
+		  //while ((*(buffer + j + 1) != NULL) && (j < max-1) && max != 1) {
+		  while ((*(buffer + i + 1) != NULL) && (i < numfull - 1) && numfull != 1) {
 		    //while (*(buffer + j + 1)) {
 		    printf("curr j: %d\n",j);
 		    *(buffer + j) = *(buffer + j + 1);
 		    *(buffer + j + 1) = NULL;
 		    j = j + 1;
-		  }		  
+		  }	
+		  numfull = numfull - 1;
 		  pthread_cond_signal(&empty);
 		}
 
@@ -339,7 +343,8 @@ int main(int argc, char *argv[])
 		  *(buffer + i) = req;
 
 		  printf("------------- BEFORE SORTING ------------\n");
-		  for(int x = 0; x < max; x++) {
+		  //for(int x = 0; x < max; x++) {
+		  for(int x = 0; x < numfull; x++) {
 		    if(*(buffer+x) == NULL) {
 		      printf("buffer[%d]: NULL\n", x);
 		    } else {
@@ -347,9 +352,12 @@ int main(int argc, char *argv[])
 		    }
 		  }
 		  
-		  qsort(buffer, max, sizeof(request*), requestcmp);		  
+		  //qsort(buffer, max, sizeof(request*), requestcmp);	
+		  qsort(buffer, numfull, sizeof(request*), requestcmp);	
+		  
 		  printf("!!!!!!!!!!!!! AFTER SORTING !!!!!!!!!!!!!!\n");
-		  for(int x = 0; x < max; x++) {
+		  //for(int x = 0; x < max; x++) {
+		  for(int x = 0; x < numfull; x++) {
 		    if(*(buffer+x) == NULL) {
 		      printf("buffer[%d]: NULL\n", x);
 		    } else {
