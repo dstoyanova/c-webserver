@@ -96,9 +96,13 @@ void getargs(int argc, char *argv[], int *port, int *threads, int *buffers, sche
 }
 
 int requestcmp(const void *first, const void *second) {
-	assert(first != NULL);
-	assert(second != NULL);
-	return ((*(request **)first)->size - (*(request **)second)->size);
+  //assert(*(request**)first != NULL);
+  if((*(request**)first == NULL) || (*(request**)second == NULL)) {
+    return 0;
+  }
+  //printf("first-size: %ld\n", (*(request**)first)->size);
+  printf("compare results in: %ld\n",(*(request**)first)->size - (*(request **)second)->size);
+  return (*(request**)first)->size - (*(request **)second)->size;
 }
 
 /**
@@ -165,26 +169,39 @@ void *consumer(void *arg) {
 		  pthread_cond_signal(&empty);
 		} else if (algorithm == SFF) {
 		  /* TODO: SFF=Removes the request with the smalles file first */
-		  int i;
-		  long min = requestFileSize((*(buffer + 0))->fd);
-		  for (i = 1; i < max; i++) {
-		    long temp = requestFileSize((*(buffer + i))->fd);
-		    if (temp < min) {
-		      min = temp;
-		    }
-		  }
-		  for (i = 0; i < max; i++) {
-		    long temp = requestFileSize((*(buffer + i))->fd);
-		    if (temp == min) {
-		      req = *(buffer + i);
-		      int j = i;
-		      while (*(buffer + j + 1)) {
-                        *(buffer + j) = *(buffer + j + 1);
-                        *(buffer + j + 1) = NULL;
-                        j = j + 1;
-		      }
-		    }
-		  }
+		  /* int i; */
+		  /* long min = requestFileSize((*(buffer + 0))->fd); */
+		  /* for (i = 1; i < max; i++) { */
+		  /*   long temp = requestFileSize((*(buffer + i))->fd); */
+		  /*   if (temp < min) { */
+		  /*     min = temp; */
+		  /*   } */
+		  /* } */
+		  /* for (i = 0; i < max; i++) { */
+		  /*   long temp = requestFileSize((*(buffer + i))->fd); */
+		  /*   if (temp == min) { */
+		  /*     req = *(buffer + i); */
+		  /*     int j = i; */
+		  /*     while ((*(buffer + j + 1) != NULL) && (j < max-1) && max != 1) { */
+		  /* 	//while (*(buffer + j + 1)) { */
+                  /*       *(buffer + j) = *(buffer + j + 1); */
+                  /*       *(buffer + j + 1) = NULL; */
+                  /*       j = j + 1; */
+		  /*     } */
+		  /*   } */
+		  /* } */
+		  req = *(buffer + 0);
+		  numfull = numfull - 1;
+		  *(buffer + 0) = NULL;		  
+		  int j = 0;
+		  while ((*(buffer + j + 1) != NULL) && (j < max-1) && max != 1) {
+		    //while (*(buffer + j + 1)) {
+		    printf("curr j: %d\n",j);
+		    *(buffer + j) = *(buffer + j + 1);
+		    *(buffer + j + 1) = NULL;
+		    j = j + 1;
+		  }		  
+		  pthread_cond_signal(&empty);
 		}
 
 		/* TODO: Set the dispatch time of the request */
@@ -290,7 +307,7 @@ int main(int argc, char *argv[])
 
 		/* TODO: Fill the request structure */
 		req->fd = connfd;
-		req->size = clientlen;
+		req->size = requestFileSize(req->fd);
 		req->arrival = calculate_time(arrival);
 		
 		/* Queue new request depending on scheduling algorithm */
@@ -308,19 +325,41 @@ int main(int argc, char *argv[])
 		  pthread_cond_signal(&fill);
 		  /* TODO: FIFO=Queue request at the end of the queue */
             
-            // NOTE: I do not know what you mean exactly, because we have an array
-            // which automatically means that we are adding a single request at the end, always.
+		  // NOTE: I do not know what you mean exactly, because we have an array
+		  // which automatically means that we are adding a single request at
+		  // the end, always.
             
 		} else if(alg == SFF) {
 		  /* TODO: SFF=Queue request sorting them according to file size */
 		  int i = 0;
-		  while (*(buffer + i)) {
+		  while ((*(buffer + i) != NULL) && i < max) {
+		    printf("Size of q[%d]: %ld\n", i, (*(buffer + i))->size);		    
 		    i = i + 1;
 		  }
 		  *(buffer + i) = req;
-		  qsort(buffer, max, sizeof(request*), &requestcmp);
-		}
 
+		  printf("------------- BEFORE SORTING ------------\n");
+		  for(int x = 0; x < max; x++) {
+		    if(*(buffer+x) == NULL) {
+		      printf("buffer[%d]: NULL\n", x);
+		    } else {
+		      printf("buffer[%d]: %ld\n", x, (*(buffer+x))->size);
+		    }
+		  }
+		  
+		  qsort(buffer, max, sizeof(request*), requestcmp);		  
+		  printf("!!!!!!!!!!!!! AFTER SORTING !!!!!!!!!!!!!!\n");
+		  for(int x = 0; x < max; x++) {
+		    if(*(buffer+x) == NULL) {
+		      printf("buffer[%d]: NULL\n", x);
+		    } else {
+		      printf("buffer[%d]: %ld\n", x, (*(buffer+x))->size);
+		    }
+		  }		  
+
+		  pthread_cond_signal(&fill);
+		}
+		
 		/* TODO: Increase the number of clients queued */
 		numfull = numfull + 1;
 		printf("Added req in queue. Queued requests: %d\n", numfull);
